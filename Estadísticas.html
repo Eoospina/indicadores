@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Captura de Datos</title>
+    <style>
+        body {
+            font-family: 'Century Gothic', sans-serif; /* Cambiar la fuente a Century Gothic */
+            font-size: 14px; /* Establecer el tamaño de la fuente a 14px */
+            color: black; /* Color de texto negro */
+            background-color: white; /* Fondo blanco para toda la página */
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            border: 2px solid #007bff; /* Borde azul */
+            background-color: transparent; /* Fondo transparente */
+            color: #007bff; /* Texto azul */
+            font-family: 'Century Gothic', sans-serif; /* Cambiar la fuente a Century Gothic */
+            font-size: 14px; /* Establecer el tamaño de la fuente a 14px */
+            font-weight: bold; /* Poner la letra en negrita */
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #f0f0f0; /* Fondo gris claro al pasar el ratón */
+        }
+        .formulario {
+            margin-top: 20px;
+            background-color: white; /* Fondo blanco para el formulario */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        td, th {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .actions button {
+            background-color: transparent; /* Fondo transparente para botones de acción */
+            border: 2px solid #f44336; /* Borde visible en rojo */
+            color: #f44336; /* Texto rojo */
+            font-family: 'Century Gothic', sans-serif; /* Cambiar la fuente a Century Gothic */
+            font-size: 14px; /* Establecer el tamaño de la fuente a 14px */
+            padding: 5px 10px;
+            margin: 5px;
+        }
+        .actions button:hover {
+            background-color: #f0f0f0; /* Fondo gris claro al pasar el ratón */
+        }
+        .inicio-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .captura-btn {
+            border: 2px solid #007bff; /* Borde azul para botón de captura */
+            color: #007bff; /* Texto azul */
+        }
+        .captura-btn:hover {
+            background-color: #f0f0f0; /* Fondo gris claro al pasar el ratón */
+        }
+        .base-datos-btn {
+            border: 2px solid #007bff; /* Borde azul para el botón base de datos */
+            color: #007bff; /* Texto azul */
+        }
+        .base-datos-btn:hover {
+            background-color: #f0f0f0; /* Fondo gris claro al pasar el ratón */
+        }
+        .datos-container {
+            margin-top: 20px;
+            background-color: white; /* Fondo blanco para la sección de datos */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        input[readonly] {
+            background-color: #f9f9f9;
+        }
+        .regresar-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .regresar-btn:hover {
+            background-color: #0056b3;
+        }
+        .actions button {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="inicio-container">
+        <!-- Botón para abrir el formulario de captura de datos -->
+        <button class="captura-btn" onclick="mostrarFormulario()">📋Captura de Datos</button>
+        <!-- Botón para ver la base de datos -->
+        <button class="base-datos-btn" onclick="mostrarBaseDatos()">📊Base de Datos</button>
+        <!-- Botón para abrir la sección de estadísticas -->
+        <button class="base-datos-btn" onclick="mostrarEstadisticas()">📊Estadísticas</button>
+        <button class="base-datos-btn" onclick="mostrarImagen()">🗓️🕒 Cronograma</button>
+        <button id="descargar-excel" onclick="descargarExcel()">📥Descargar Bdd</button>
+
+    <div class="botones">
+        <button onclick="ocultarImagen()" style="display:none;" id="ocultarBtn">🔒🚫Ocultar Imagen</button>
+    </div>
+
+    </div>
+
+</body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
+
+</html>
+
+
+     
+
+        <!-- Formulario de Captura de Datos (inicialmente oculto) -->
+        <div id="formulario" class="formulario" style="display: none;">
+            <h2>Captura de Datos</h2>
+            <form>
+                <table>
+                    <tr>
+                        <td><label for="fecha_ejecucion">Fecha de Ejecución:</label></td>
+                        <td><input type="date" id="fecha_ejecucion" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="sede">Sede:</label></td>
+                        <td>
+                            <select id="sede" onchange="cargarIngenieros()" required>
+                                <option value="">Seleccionar sede</option>
+                                <option value="Bogotá">Bogotá</option>
+                                <option value="Medellín">Medellín</option>
+                                <option value="Cali">Cali</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="ingeniero_encargado">Ingeniero Encargado:</label></td>
+                        <td>
+                            <select id="ingeniero_encargado" required>
+                                <option value="">Seleccionar ingeniero</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="descripcion_servicio">Descripción del Servicio:</label></td>
+                        <td><textarea id="descripcion_servicio" required></textarea></td>
+                    </tr>
+                    <tr>
+
+
+                        <tr>
+                            <td><label for="contratista">Contratista:</label></td>
+                            <td>
+                                <select id="contratista" onchange="actualizarCodigoContratista()" required>
+                                    <option value="">Seleccionar contratista</option>
+
+
+                                    <option value="YONNY ALEJANDRO BURBANO">YONNY ALEJANDRO BURBANO</option>
+<option value="VALLEJO HERMANOS INGENIEROS">VALLEJO HERMANOS INGENIEROS</option>
+<option value="TEVIUM INGENIERIA S.A.S.">TEVIUM INGENIERIA S.A.S.</option>
+<option value="SOLUCIONES ELECTRICAS TOTALES SAS">SOLUCIONES ELECTRICAS TOTALES SAS</option>
+<option value="SERVICIOS ELÉCTRICOS PRADO Y CARDONA S.A.S.">SERVICIOS ELÉCTRICOS PRADO Y CARDONA S.A.S.</option>
+<option value="SELECT INGENIERIA S.A.S.">SELECT INGENIERIA S.A.S.</option>
+<option value="PQS ENERGY S.A.S">PQS ENERGY S.A.S</option>
+<option value="PLUS INGENIERIA S.A.S.">PLUS INGENIERIA S.A.S.</option>
+<option value="NOVATRONICA S.A.S.">NOVATRONICA S.A.S.</option>
+<option value="MTY INGENIERIA S.A.S">MTY INGENIERIA S.A.S</option>
+<option value="MSE MONTAJES Y SERVICIOS ELÉCTRICOS">MSE MONTAJES Y SERVICIOS ELÉCTRICOS</option>
+<option value="MATSIELECTRICAS REPRESENTACIONES S.A.S.">MATSIELECTRICAS REPRESENTACIONES S.A.S.</option>
+<option value="MARCO FIDEL CEBALLOS">MARCO FIDEL CEBALLOS</option>
+<option value="JQM S.A.S.">JQM S.A.S.</option>
+<option value="JOSE AIMER IDARRAGA ZAPATA">JOSE AIMER IDARRAGA ZAPATA</option>
+<option value="JESUS HERNAN PATIÑO ALPALA">JESUS HERNAN PATIÑO ALPALA</option>
+<option value="ISEMEC & COMPAÑÍA S.A.S.">ISEMEC & COMPAÑÍA S.A.S.</option>
+<option value="IS3 INGENIERÍA SAS">IS3 INGENIERÍA SAS</option>
+<option value="INSTALACIONES Y SOLUCIONES ELÉCTRICAS CJ SAS">INSTALACIONES Y SOLUCIONES ELÉCTRICAS CJ SAS</option>
+<option value="INPEL S.A.">INPEL S.A.</option>
+<option value="INGENIERÍA ARANGO ANGEL S.A.S.">INGENIERÍA ARANGO ANGEL S.A.S.</option>
+<option value="INGELER SAS">INGELER SAS</option>
+<option value="IMSES S.A.S">IMSES S.A.S</option>
+<option value="IGT S.A.S.">IGT S.A.S.</option>
+<option value="G.D SERVICIOS TECNICOS INDUSTRIALES SAS">G.D SERVICIOS TECNICOS INDUSTRIALES SAS</option>
+<option value="FYR INGENIEROS LTDA.">FYR INGENIEROS LTDA.</option>
+<option value="FOCUS ING SAS">FOCUS ING SAS</option>
+<option value="FACELCO MANTENIMIENTO ELÉCTRICO SAS">FACELCO MANTENIMIENTO ELÉCTRICO SAS</option>
+<option value="EVOLTI COMPANY SAS BIC">EVOLTI COMPANY SAS BIC</option>
+<option value="ESPECIALISTAS ELECTRICOS DE COLOMBIA - EEC S.A.S.">ESPECIALISTAS ELECTRICOS DE COLOMBIA - EEC S.A.S.</option>
+<option value="INVERSIONES EQUITECNOS LTDA">INVERSIONES EQUITECNOS LTDA</option>
+<option value="ENERTECNICA S.A.S.">ENERTECNICA S.A.S.</option>
+<option value="ELECTRO BOBINADOS MEDELLIN S.A.S. (EBM)">ELECTRO BOBINADOS MEDELLIN S.A.S. (EBM)</option>
+<option value="ELECTRICOS DRV">ELECTRICOS DRV</option>
+<option value="DISPROEL S.A.">DISPROEL S.A.</option>
+<option value="DAMENERGY S.A.S">DAMENERGY S.A.S</option>
+<option value="CW INGENIERIA SOLUCIONES S.A.S">CW INGENIERIA SOLUCIONES S.A.S</option>
+<option value="CARLOS ALBERTO GAVIRIA CANO">CARLOS ALBERTO GAVIRIA CANO</option>
+<option value="C3 PRONTO SERVICIOS S.A.S.">C3 PRONTO SERVICIOS S.A.S.</option>
+<option value="C2 INGENIERÍA S.A.S.">C2 INGENIERÍA S.A.S.</option>
+<option value="ALEXANDER GARCÍA CAICEDO">ALEXANDER GARCÍA CAICEDO</option>
+<option value="ADVANCE - INGENIERIA Y SOLUCIONES">ADVANCE - INGENIERIA Y SOLUCIONES</option>
+<option value="AC PROYECTOS DE INGENIERIA S.A.S.">AC PROYECTOS DE INGENIERIA S.A.S.</option>
+<option value="COISI LTDA">COISI LTDA</option>
+<option value="MECANOELECTRO INGENIERIA S.A.S.">MECANOELECTRO INGENIERIA S.A.S.</option>
+<option value="COINTECA SAS">COINTECA SAS</option>
+<option value="SERVICIOS DE INGENIERIA SEDEING S.A.S.">SERVICIOS DE INGENIERIA SEDEING S.A.S.</option>
+
+
+
+
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label for="codigo_contratista">Código del Contratista:</label></td>
+                            <td><input type="text" id="codigo_contratista" readonly required></td>
+                        </tr>
+
+
+                        <td><label for="nombre_cliente">Nombre del Cliente:</label></td>
+                        <td><input type="text" id="nombre_cliente" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="items_evaluados"># Ítems Evaluados:</label></td>
+                        <td><input type="number" id="items_evaluados" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="items_aprobados"># Ítems Aprobados:</label></td>
+                        <td><input type="number" id="items_aprobados" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="items_criticos"># Ítems Críticos No Aprobados:</label></td>
+                        <td><input type="number" id="items_criticos" onchange="calcularResultadoYValoracion()" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="resultado_numerico">Resultado Numérico:</label></td>
+                        <td><input type="text" id="resultado_numerico" readonly></td>
+                    </tr>
+                    <tr>
+                        <td><label for="valoracion">Valoración:</label></td>
+                        <td><input type="text" id="valoracion" readonly></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="text-align: center;">
+                            <button type="button" onclick="guardarDatos()">💾 Guardar</button>
+                            <button type="button" onclick="regresarInicio()">⏪ Regresar al Inicio</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+
+        
+
+        <!-- Sección de Visualización de la Base de Datos (inicialmente oculta) -->
+<div id="base-datos" class="datos-container" style="display: none;">
+    <!-- Botón para regresar al inicio, ahora en la parte superior -->
+    <button class="regresar-btn" onclick="regresarInicio()">⏪ Regresar al Inicio</button>
+    
+    <h2>Base de Datos Guardados</h2>
+    <table id="tabla-datos">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Fecha de Ejecución</th>
+                <th>Sede</th>
+                <th>Descripción del Servicio</th>
+                <th>Ingeniero Encargado</th>
+                <th>Contratista</th>
+                <th>Código de Contratista</th>
+                <th>Nombre del Cliente</th>
+                <th># Ítems Evaluados</th>
+                <th># Ítems Aprobados</th>
+                <th># Ítems Críticos</th>
+                <th>Resultado Numérico</th>
+                <th>Valoración</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Los datos se llenarán aquí -->
+        </tbody>
+    </table>
+</div>
+
+    <script>
+        const datosGuardados = JSON.parse(localStorage.getItem('datosGuardados')) || [];
+        let editIndex = -1;
+
+        // Cargar ingenieros según la sede seleccionada
+        function cargarIngenieros() {
+            const sede = document.getElementById("sede").value;
+            const ingenieroSelect = document.getElementById("ingeniero_encargado");
+            ingenieroSelect.innerHTML = '<option value="">Seleccionar ingeniero</option>';  // Limpiar opciones anteriores
+
+            let ingenieros = [];
+
+            if (sede === "Bogotá") {
+                ingenieros = ["Wilber Ayala C", "Carlos Fernando L", "Gustavo Adolfo R", "Eder Gustavo R", "Rolando Sanchez S", "Hernan David P"];
+            } else if (sede === "Medellín") {
+                ingenieros = ["Juian Esteban R", "Davindon Duque G", "Jhon Alexander B", "Angel David C", "Johan Sebastian O", "Marlon Jimenez J"];
+            } else if (sede === "Cali") {
+                ingenieros = ["Deived Yussett A", "Eddy Santiago P", "Edwin Ernesto P", "Rafael Barco G", "Christian Andres V", "Camilo José P", "Yamir Dario S"]; 
+            }
+
+            // Agregar ingenieros a la lista desplegable
+            ingenieros.forEach(ingeniero => {
+                const option = document.createElement("option");
+                option.value = ingeniero;
+                option.textContent = ingeniero;
+                ingenieroSelect.appendChild(option);
+            });
+        }
+
+        // Mostrar el formulario de captura de datos
+        function mostrarFormulario() {
+            document.getElementById('formulario').style.display = 'block';
+            document.querySelector('.inicio-container').style.display = 'none';
+            document.getElementById('base-datos').style.display = 'none';
+        }
+
+        // Mostrar la base de datos
+        function mostrarBaseDatos() {
+            document.getElementById('formulario').style.display = 'none';
+            document.querySelector('.inicio-container').style.display = 'none';
+            document.getElementById('base-datos').style.display = 'block';
+            llenarTabla();
+        }
+
+        // Llenar la tabla con los datos guardados
+        function llenarTabla() {
+            const tabla = document.getElementById('tabla-datos').getElementsByTagName('tbody')[0];
+            tabla.innerHTML = ''; // Limpiar tabla
+
+            datosGuardados.forEach((data, index) => {
+                const row = tabla.insertRow();
+                row.insertCell(0).textContent = index + 1;
+                row.insertCell(1).textContent = data.fecha_ejecucion;
+                row.insertCell(2).textContent = data.sede;
+                row.insertCell(3).textContent = data.descripcion_servicio;
+                row.insertCell(4).textContent = data.ingeniero_encargado;
+                row.insertCell(5).textContent = data.contratista;
+                row.insertCell(6).textContent = data.codigo_contratista;
+                row.insertCell(7).textContent = data.nombre_cliente;
+                row.insertCell(8).textContent = data.items_evaluados;
+                row.insertCell(9).textContent = data.items_aprobados;
+                row.insertCell(10).textContent = data.items_criticos;
+                row.insertCell(11).textContent = calcularResultado(data);
+                row.insertCell(12).textContent = calcularValoracion(data);
+                const actionsCell = row.insertCell(13);
+                actionsCell.innerHTML = `
+                    <button class="actions" onclick="editarDatos(${index})">🖊️</button> 
+                    <button class="actions" onclick="confirmarBorrar(${index})">🗑️</button>
+                `;
+            });
+        }
+
+        // Confirmar borrar
+        function confirmarBorrar(index) {
+            if (confirm("¿Estás seguro de que deseas borrar este registro?")) {
+                borrarDatos(index);
+            }
+        }
+
+        // Borrar datos
+        function borrarDatos(index) {
+            datosGuardados.splice(index, 1);
+            localStorage.setItem('datosGuardados', JSON.stringify(datosGuardados));
+            llenarTabla();
+        }
+
+        // Editar datos
+        function editarDatos(index) {
+            editIndex = index;
+            const data = datosGuardados[index];
+            
+            document.getElementById('fecha_ejecucion').value = data.fecha_ejecucion;
+            document.getElementById('sede').value = data.sede;
+            cargarIngenieros();
+            document.getElementById('ingeniero_encargado').value = data.ingeniero_encargado;
+            document.getElementById('descripcion_servicio').value = data.descripcion_servicio;
+            document.getElementById('contratista').value = data.contratista;
+            document.getElementById('codigo_contratista').value = data.codigo_contratista;
+            document.getElementById('nombre_cliente').value = data.nombre_cliente;
+            document.getElementById('items_evaluados').value = data.items_evaluados;
+            document.getElementById('items_aprobados').value = data.items_aprobados;
+            document.getElementById('items_criticos').value = data.items_criticos;
+            document.getElementById('formulario').style.display = 'block';
+            document.getElementById('base-datos').style.display = 'none';
+        }
+
+        // Guardar los datos
+        function guardarDatos() {
+            const datos = {
+                fecha_ejecucion: document.getElementById('fecha_ejecucion').value,
+                sede: document.getElementById('sede').value,
+                ingeniero_encargado: document.getElementById('ingeniero_encargado').value,
+                descripcion_servicio: document.getElementById('descripcion_servicio').value,
+                contratista: document.getElementById('contratista').value,
+                codigo_contratista: document.getElementById('codigo_contratista').value,
+                nombre_cliente: document.getElementById('nombre_cliente').value,
+                items_evaluados: document.getElementById('items_evaluados').value,
+                items_aprobados: document.getElementById('items_aprobados').value,
+                items_criticos: document.getElementById('items_criticos').value
+            };
+
+            // Calcular los valores de Resultado y Valoración antes de guardar
+            datos.resultado_numerico = calcularResultado(datos);
+            datos.valoracion = calcularValoracion(datos);
+
+            if (editIndex !== -1) {
+                // Actualizar datos
+                datosGuardados[editIndex] = datos;
+                editIndex = -1;
+            } else {
+                // Guardar nuevos datos
+                datosGuardados.push(datos);
+            }
+
+            localStorage.setItem('datosGuardados', JSON.stringify(datosGuardados));
+
+            // Volver a la base de datos
+            mostrarBaseDatos();
+        }
+
+        // Regresar al inicio
+        function regresarInicio() {
+            document.getElementById('formulario').style.display = 'none';
+            document.getElementById('base-datos').style.display = 'none';
+            document.querySelector('.inicio-container').style.display = 'flex';
+        }
+
+        // Calcular el resultado numérico
+        function calcularResultado(data) {
+            const { items_evaluados, items_aprobados, items_criticos } = data;
+            let resultado = 5;
+
+            if (items_criticos >= 1) {
+                resultado = 2.6 - (items_criticos / 11);
+            } else if (items_evaluados && items_aprobados) {
+                resultado = (items_aprobados / items_evaluados) * 5;
+            }
+
+            return resultado.toFixed(2);  // Limitar a 2 decimales
+        }
+
+        // Calcular la valoración
+        function calcularValoracion(data) {
+            const { items_criticos, items_evaluados, items_aprobados } = data;
+            let resultado = calcularResultado(data);
+
+            if (items_criticos >= 1) {
+                return 'No Aprobado';
+            } else if (resultado >= 4.2) {
+                return 'Aprobado';
+            } else if (resultado >= 3.4) {
+                return 'Satisfactorio';
+            } else if (resultado >= 2) {
+                return 'No Satisfactorio';
+            }
+            return 'Sin Valoración';
+        }
+
+
+        // Función para descargar el archivo Excel
+function descargarExcel() {
+    const datos = datosGuardados.map((data, index) => ({
+        Item: index + 1,
+        Fecha_ejecucion: data.fecha_ejecucion,
+        Sede: data.sede,
+        Descripcion_servicio: data.descripcion_servicio,
+        Ingeniero_encargado: data.ingeniero_encargado,
+        Contratista: data.contratista,
+        Codigo_contratista: data.codigo_contratista,
+        Nombre_cliente: data.nombre_cliente,
+        Items_evaluados: data.items_evaluados,
+        Items_aprobados: data.items_aprobados,
+        Items_criticos: data.items_criticos,
+        Resultado_numerico: calcularResultado(data),
+        Valoracion: calcularValoracion(data)
+    }));
+
+    // Crear una hoja de Excel con los datos
+    const ws = XLSX.utils.json_to_sheet(datos);
+
+    // Crear un libro de Excel
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Datos");
+
+    // Descargar el archivo Excel con el nombre 'base_de_datos.xlsx'
+    XLSX.writeFile(wb, "base_de_datos.xlsx");
+}
+
+
+
+
+// Definir un objeto con los contratistas y sus códigos
+
+
+const contratistas = {
+    "YONNY ALEJANDRO BURBANO": "7463",
+    "VALLEJO HERMANOS INGENIEROS": "6766",
+    "TEVIUM INGENIERIA S.A.S.": "2864",
+    "SOLUCIONES ELECTRICAS TOTALES SAS": "6399",
+    "SERVICIOS ELÉCTRICOS PRADO Y CARDONA S.A.S.": "2384",
+    "SELECT INGENIERIA S.A.S.": "1432",
+    "PQS ENERGY S.A.S": "6636",
+    "PLUS INGENIERIA S.A.S.": "350",
+    "NOVATRONICA S.A.S.": "6198",
+    "MTY INGENIERIA S.A.S": "6041",
+    "MSE MONTAJES Y SERVICIOS ELÉCTRICOS": "5364",
+    "MATSIELECTRICAS REPRESENTACIONES S.A.S.": "5831",
+    "MARCO FIDEL CEBALLOS": "552",
+    "JQM S.A.S.": "5149",
+    "JOSE AIMER IDARRAGA ZAPATA": "862",
+    "JESUS HERNAN PATIÑO ALPALA": "6101",
+    "ISEMEC & COMPAÑÍA S.A.S.": "5857",
+    "IS3 INGENIERÍA SAS": "6579",
+    "INSTALACIONES Y SOLUCIONES ELÉCTRICAS CJ SAS": "6709",
+    "INPEL S.A.": "600002",
+    "INGENIERÍA ARANGO ANGEL S.A.S.": "4234",
+    "INGELER SAS": "5715",
+    "IMSES S.A.S": "7316",
+    "IGT S.A.S.": "1466",
+    "G.D SERVICIOS TECNICOS INDUSTRIALES SAS": "7136",
+    "FYR INGENIEROS LTDA.": "580",
+    "FOCUS ING SAS": "7067",
+    "FACELCO MANTENIMIENTO ELÉCTRICO SAS": "4875",
+    "EVOLTI COMPANY SAS BIC": "6769",
+    "ESPECIALISTAS ELECTRICOS DE COLOMBIA - EEC S.A.S.": "6874",
+    "INVERSIONES EQUITECNOS LTDA": "5534",
+    "ENERTECNICA S.A.S.": "312",
+    "ELECTRO BOBINADOS MEDELLIN S.A.S. (EBM)": "6896",
+    "ELECTRICOS DRV": "2345",
+    "DISPROEL S.A.": "223",
+    "DAMENERGY S.A.S": "6942",
+    "CW INGENIERIA SOLUCIONES S.A.S": "7194",
+    "CARLOS ALBERTO GAVIRIA CANO": "132",
+    "C3 PRONTO SERVICIOS S.A.S.": "6635",
+    "C2 INGENIERÍA S.A.S.": "5433",
+    "ALEXANDER GARCÍA CAICEDO": "3200",
+    "ADVANCE - INGENIERIA Y SOLUCIONES": "1963",
+    "AC PROYECTOS DE INGENIERIA S.A.S.": "3475",
+    "COISI LTDA": "5656",
+    "MECANOELECTRO INGENIERIA S.A.S.": "Pdte",
+    "COINTECA SAS": "7494",
+    "SERVICIOS DE INGENIERIA SEDEING S.A.S.": "Pdte"
+};
+
+
+// Función para actualizar el campo de Código del Contratista al seleccionar un contratista
+function actualizarCodigoContratista() {
+    const contratistaSeleccionado = document.getElementById("contratista").value;
+    const codigoContratista = document.getElementById("codigo_contratista");
+
+    // Verificar si el contratista seleccionado tiene un código asociado
+    if (contratistas[contratistaSeleccionado]) {
+        codigoContratista.value = contratistas[contratistaSeleccionado];
+    } else {
+        codigoContratista.value = ""; // Limpiar el campo si no hay contratista seleccionado
+    }
+}
+
+
+    </script>
+
+
+ <!-- Los datos se llenarán aquí -->
+
+
+<!-- Sección de Estadísticas (inicialmente oculta) -->
+<div id="estadisticas" class="datos-container" style="display: none;">
+    <button class="regresar-btn" onclick="regresarInicio()">⏪ Regresar al Inicio</button>
+    
+    <!-- Nuevo botón de Filtrar por Mes -->
+    <div style="text-align: center; margin-bottom: 20px;">
+        <input type="text" id="mesFiltro" placeholder="Escribe el mes completo" onkeyup="filtrarPorMes()">
+    </div>
+
+    <h2>Estadísticas por Mes</h2>
+    <div id="estadisticas-sedes">
+        <table id="tabla-estadisticas">
+            <thead>
+                <tr>
+                    <th>Sede</th>
+                    <th>Mes</th>
+                    <th>Cantidad de Actividades</th>
+                    <th>Incumplimiento</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Las estadísticas se llenarán aquí -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Mostrar la sección de estadísticas
+    function mostrarEstadisticas() {
+        document.getElementById('estadisticas').style.display = 'block';
+        document.getElementById('formulario').style.display = 'none';
+        document.getElementById('base-datos').style.display = 'none';
+        document.querySelector('.inicio-container').style.display = 'none';
+        calcularEstadisticas();  // Cargar estadísticas al abrir la sección
+    }
+
+    // Calcular las estadísticas por mes y sede
+    function calcularEstadisticas() {
+        const tabla = document.getElementById('tabla-estadisticas').getElementsByTagName('tbody')[0];
+        tabla.innerHTML = ''; // Limpiar tabla
+
+        // Crear un objeto para contar las actividades por sede y mes
+        const actividadesPorSede = {
+            "Bogotá": {},
+            "Medellín": {},
+            "Cali": {}
+        };
+
+        // Recorrer los datos guardados y contar las actividades por sede y mes
+        datosGuardados.forEach(data => {
+            const fecha = new Date(data.fecha_ejecucion);
+            const mes = fecha.toLocaleString('default', { month: 'long' });
+            const sede = data.sede;
+
+            if (!actividadesPorSede[sede][mes]) {
+                actividadesPorSede[sede][mes] = 0;
+            }
+            actividadesPorSede[sede][mes]++;
+        });
+
+        // Mostrar las estadísticas en la tabla
+        Object.keys(actividadesPorSede).forEach(sede => {
+            Object.keys(actividadesPorSede[sede]).forEach(mes => {
+                const cantidadActividades = actividadesPorSede[sede][mes];
+                const incumplimiento = cantidadActividades < 2 ? '¡Incumplimiento!' : '';
+
+                const row = tabla.insertRow();
+                row.insertCell(0).textContent = sede;
+                row.insertCell(1).textContent = mes;
+                row.insertCell(2).textContent = cantidadActividades;
+                row.insertCell(3).textContent = incumplimiento;
+
+                // Cambiar el color de la alerta si hay incumplimiento
+                if (incumplimiento) {
+                    row.cells[3].style.color = 'red';
+                }
+            });
+        });
+    }
+
+    // Filtrar las estadísticas por mes
+    function filtrarPorMes() {
+        const mesFiltro = document.getElementById('mesFiltro').value.toLowerCase();
+        const tabla = document.getElementById('tabla-estadisticas').getElementsByTagName('tbody')[0];
+        const rows = tabla.getElementsByTagName('tr');
+
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const mes = row.cells[1].textContent.toLowerCase();
+
+            if (mes.includes(mesFiltro)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    }
+
+    // Regresar al inicio
+    function regresarInicio() {
+        document.getElementById('estadisticas').style.display = 'none';
+        document.getElementById('formulario').style.display = 'none';
+        document.getElementById('base-datos').style.display = 'none';
+        document.querySelector('.inicio-container').style.display = 'flex';
+    }
+</script>
+
+
+
+  <!-- Los datos se llenarán aquí -->
+
+  <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interfaz con Cronograma</title>
+    <style>
+        #cronogramaImg {
+            display: none;
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+        }
+        .botones {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+   
+    <img id="cronogramaImg" src="file:///C:/Users/ingcontroltecnico/OneDrive/Desktop/Proyecto%20Indicadores/Sin%20t%C3%ADtulo.png" alt="Cronograma">
+
+    <script>
+        function mostrarImagen() {
+            var img = document.getElementById("cronogramaImg");
+            var ocultarBtn = document.getElementById("ocultarBtn");
+            img.style.display = "block";  // Muestra la imagen
+            ocultarBtn.style.display = "inline";  // Muestra el botón para ocultar
+        }
+
+        function ocultarImagen() {
+            var img = document.getElementById("cronogramaImg");
+            var ocultarBtn = document.getElementById("ocultarBtn");
+            img.style.display = "none";  // Oculta la imagen
+            ocultarBtn.style.display = "none";  // Oculta el botón de ocultar
+        }
+    </script>
+
+
+
+
+  </body>
+</html>
